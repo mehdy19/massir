@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { MapPin, Clock, DollarSign, Users, ArrowRight } from "lucide-react";
 
@@ -14,6 +16,8 @@ const TripDetails = () => {
   const [trip, setTrip] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState(false);
+  const [fromCity, setFromCity] = useState("");
+  const [toCity, setToCity] = useState("");
 
   useEffect(() => {
     fetchTripDetails();
@@ -47,12 +51,27 @@ const TripDetails = () => {
       return;
     }
 
+    if (!fromCity || !toCity) {
+      toast.error("يجب اختيار محطة الانطلاق والوصول");
+      return;
+    }
+
+    const fromIndex = trip.route_cities.indexOf(fromCity);
+    const toIndex = trip.route_cities.indexOf(toCity);
+
+    if (fromIndex === -1 || toIndex === -1 || fromIndex >= toIndex) {
+      toast.error("يجب اختيار محطات صحيحة");
+      return;
+    }
+
     setBooking(true);
     try {
       const { error } = await supabase.from("bookings").insert({
         trip_id: trip.id,
         user_id: user.id,
         seats_booked: 1,
+        from_city: fromCity,
+        to_city: toCity,
       });
 
       if (error) throw error;
@@ -98,33 +117,45 @@ const TripDetails = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 p-4 bg-secondary rounded-lg">
-                  <MapPin className="h-5 w-5 text-primary mt-0.5" />
-                  <div>
-                    <p className="font-semibold mb-1">المسار</p>
-                    <p className="text-sm text-muted-foreground">
-                      من {trip.from_city} إلى {trip.to_city}
-                    </p>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-4 bg-secondary rounded-lg">
+                <MapPin className="h-5 w-5 text-primary mt-0.5" />
+                <div className="w-full">
+                  <p className="font-semibold mb-2">محطات الرحلة</p>
+                  <div className="space-y-2">
+                    {trip.route_cities?.map((city: string, index: number) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="flex items-center">
+                          <div className={`w-3 h-3 rounded-full ${
+                            index === 0 ? 'bg-primary' : 
+                            index === trip.route_cities.length - 1 ? 'bg-primary' : 
+                            'bg-muted-foreground'
+                          }`} />
+                          {index < trip.route_cities.length - 1 && (
+                            <div className="w-px h-6 bg-muted-foreground ml-1.5" />
+                          )}
+                        </div>
+                        <span className="text-sm">{city}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
+              </div>
 
+              <div className="grid md:grid-cols-3 gap-4">
                 <div className="flex items-start gap-3 p-4 bg-secondary rounded-lg">
                   <Clock className="h-5 w-5 text-primary mt-0.5" />
                   <div>
                     <p className="font-semibold mb-1">موعد الانطلاق</p>
                     <p className="text-sm text-muted-foreground">
                       {new Date(trip.departure_time).toLocaleString("ar-DZ", {
-                        dateStyle: "full",
+                        dateStyle: "short",
                         timeStyle: "short",
                       })}
                     </p>
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-4">
                 <div className="flex items-start gap-3 p-4 bg-secondary rounded-lg">
                   <DollarSign className="h-5 w-5 text-primary mt-0.5" />
                   <div>
@@ -145,12 +176,46 @@ const TripDetails = () => {
               </div>
             </div>
 
-            <div className="pt-4 border-t">
+            <div className="pt-4 border-t space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="from-city">من محطة</Label>
+                  <Select value={fromCity} onValueChange={setFromCity}>
+                    <SelectTrigger id="from-city">
+                      <SelectValue placeholder="اختر محطة الانطلاق" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {trip.route_cities?.map((city: string) => (
+                        <SelectItem key={city} value={city}>
+                          {city}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="to-city">إلى محطة</Label>
+                  <Select value={toCity} onValueChange={setToCity}>
+                    <SelectTrigger id="to-city">
+                      <SelectValue placeholder="اختر محطة الوصول" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {trip.route_cities?.map((city: string) => (
+                        <SelectItem key={city} value={city}>
+                          {city}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <Button
-                className="w-full md:w-auto md:min-w-[200px]"
+                className="w-full"
                 size="lg"
                 onClick={handleBooking}
-                disabled={booking || trip.available_seats === 0}
+                disabled={booking || trip.available_seats === 0 || !fromCity || !toCity}
               >
                 {booking ? "جاري الحجز..." : trip.available_seats === 0 ? "الرحلة ممتلئة" : "احجز مقعد"}
               </Button>

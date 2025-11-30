@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Plus, X } from "lucide-react";
 
 const CITIES = [
   "الجزائر العاصمة",
@@ -26,22 +26,45 @@ const CITIES = [
 const NewTrip = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [fromCity, setFromCity] = useState("");
-  const [toCity, setToCity] = useState("");
+  const [routeCities, setRouteCities] = useState<string[]>(["", ""]);
   const [price, setPrice] = useState("");
   const [seats, setSeats] = useState("");
   const [departureTime, setDepartureTime] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const addCity = () => {
+    setRouteCities([...routeCities, ""]);
+  };
+
+  const removeCity = (index: number) => {
+    if (routeCities.length > 2) {
+      setRouteCities(routeCities.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateCity = (index: number, value: string) => {
+    const newCities = [...routeCities];
+    newCities[index] = value;
+    setRouteCities(newCities);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
+    const filledCities = routeCities.filter(city => city !== "");
+    if (filledCities.length < 2) {
+      toast.error("يجب إدخال مدينتين على الأقل");
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.from("trips").insert({
         driver_id: user?.id,
-        from_city: fromCity,
-        to_city: toCity,
+        from_city: filledCities[0],
+        to_city: filledCities[filledCities.length - 1],
+        route_cities: filledCities,
         price: parseFloat(price),
         seats: parseInt(seats),
         available_seats: parseInt(seats),
@@ -79,38 +102,51 @@ const NewTrip = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="from">من مدينة</Label>
-                  <Select value={fromCity} onValueChange={setFromCity} required>
-                    <SelectTrigger id="from">
-                      <SelectValue placeholder="اختر المدينة" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CITIES.map((city) => (
-                        <SelectItem key={city} value={city}>
-                          {city}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>محطات الرحلة (بالترتيب)</Label>
+                  <Button type="button" onClick={addCity} variant="outline" size="sm">
+                    <Plus className="ml-2 h-4 w-4" />
+                    إضافة محطة
+                  </Button>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="to">إلى مدينة</Label>
-                  <Select value={toCity} onValueChange={setToCity} required>
-                    <SelectTrigger id="to">
-                      <SelectValue placeholder="اختر المدينة" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CITIES.map((city) => (
-                        <SelectItem key={city} value={city}>
-                          {city}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                
+                {routeCities.map((city, index) => (
+                  <div key={index} className="flex gap-2 items-center">
+                    <div className="flex-1 space-y-2">
+                      <Label htmlFor={`city-${index}`}>
+                        {index === 0 ? "مدينة الانطلاق" : index === routeCities.length - 1 ? "مدينة الوصول" : `محطة ${index}`}
+                      </Label>
+                      <Select 
+                        value={city} 
+                        onValueChange={(value) => updateCity(index, value)}
+                        required
+                      >
+                        <SelectTrigger id={`city-${index}`}>
+                          <SelectValue placeholder="اختر المدينة" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CITIES.map((cityOption) => (
+                            <SelectItem key={cityOption} value={cityOption}>
+                              {cityOption}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {routeCities.length > 2 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeCity(index)}
+                        className="mt-8"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
