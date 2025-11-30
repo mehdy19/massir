@@ -31,6 +31,7 @@ const MyBookings = () => {
           )
         `)
         .eq("user_id", user?.id)
+        .eq("status", "confirmed")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -72,7 +73,7 @@ const MyBookings = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle className="text-xl mb-1">
-                      {booking.trips.from_city} → {booking.trips.to_city}
+                      {booking.from_city} → {booking.to_city}
                     </CardTitle>
                     <CardDescription>
                       السائق: {booking.trips.profiles?.full_name || "غير معروف"}
@@ -88,7 +89,25 @@ const MyBookings = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                <div className="p-3 bg-secondary rounded-lg">
+                  <p className="text-sm font-semibold mb-2">محطات الرحلة:</p>
+                  <div className="flex items-center gap-2 flex-wrap text-sm">
+                    {booking.trips?.route_cities?.map((city: string, index: number) => (
+                      <span 
+                        key={index}
+                        className={`px-2 py-1 rounded ${
+                          city === booking.from_city || city === booking.to_city
+                            ? 'bg-primary text-primary-foreground font-semibold'
+                            : 'bg-muted'
+                        }`}
+                      >
+                        {city}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center gap-2 text-sm">
                     <Clock className="h-4 w-4 text-muted-foreground" />

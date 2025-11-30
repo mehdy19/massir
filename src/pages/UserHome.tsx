@@ -42,17 +42,30 @@ const UserHome = () => {
         .gt("available_seats", 0)
         .order("departure_time", { ascending: true });
 
-      if (fromCity) {
-        query = query.eq("from_city", fromCity);
-      }
-      if (toCity) {
-        query = query.eq("to_city", toCity);
-      }
-
       const { data, error } = await query;
 
       if (error) throw error;
-      setTrips(data || []);
+      
+      // Filter trips that pass through both cities in the correct order
+      let filteredTrips = data || [];
+      
+      if (fromCity && toCity) {
+        filteredTrips = filteredTrips.filter(trip => {
+          const fromIndex = trip.route_cities?.indexOf(fromCity);
+          const toIndex = trip.route_cities?.indexOf(toCity);
+          return fromIndex !== -1 && toIndex !== -1 && fromIndex < toIndex;
+        });
+      } else if (fromCity) {
+        filteredTrips = filteredTrips.filter(trip => 
+          trip.route_cities?.includes(fromCity)
+        );
+      } else if (toCity) {
+        filteredTrips = filteredTrips.filter(trip => 
+          trip.route_cities?.includes(toCity)
+        );
+      }
+
+      setTrips(filteredTrips);
     } catch (error: any) {
       toast.error("حدث خطأ في جلب الرحلات");
     } finally {

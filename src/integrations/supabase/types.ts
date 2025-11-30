@@ -17,25 +17,31 @@ export type Database = {
       bookings: {
         Row: {
           created_at: string
+          from_city: string
           id: string
           seats_booked: number
           status: string
+          to_city: string
           trip_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          from_city?: string
           id?: string
           seats_booked?: number
           status?: string
+          to_city?: string
           trip_id: string
           user_id: string
         }
         Update: {
           created_at?: string
+          from_city?: string
           id?: string
           seats_booked?: number
           status?: string
+          to_city?: string
           trip_id?: string
           user_id?: string
         }
@@ -93,6 +99,7 @@ export type Database = {
           from_city: string
           id: string
           price: number
+          route_cities: string[]
           seats: number
           status: string
           to_city: string
@@ -107,6 +114,7 @@ export type Database = {
           from_city: string
           id?: string
           price: number
+          route_cities?: string[]
           seats: number
           status?: string
           to_city: string
@@ -121,6 +129,7 @@ export type Database = {
           from_city?: string
           id?: string
           price?: number
+          route_cities?: string[]
           seats?: number
           status?: string
           to_city?: string

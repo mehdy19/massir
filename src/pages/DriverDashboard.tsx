@@ -11,11 +11,13 @@ const DriverDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [trips, setTrips] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
       fetchDriverTrips();
+      fetchDriverBookings();
     }
   }, [user]);
 
@@ -33,6 +35,33 @@ const DriverDashboard = () => {
       toast.error("حدث خطأ في جلب الرحلات");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDriverBookings = async () => {
+    try {
+      const { data: tripsData } = await supabase
+        .from("trips")
+        .select("id")
+        .eq("driver_id", user?.id);
+
+      if (!tripsData) return;
+
+      const tripIds = tripsData.map(t => t.id);
+
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(`
+          *,
+          profiles:user_id (full_name)
+        `)
+        .in("trip_id", tripIds)
+        .eq("status", "confirmed");
+
+      if (error) throw error;
+      setBookings(data || []);
+    } catch (error: any) {
+      toast.error("حدث خطأ في جلب الحجوزات");
     }
   };
 
@@ -69,59 +98,71 @@ const DriverDashboard = () => {
             </div>
           )}
 
-          {trips.map((trip) => (
-            <Card key={trip.id} className="shadow-soft">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl mb-1">
-                      {trip.from_city} → {trip.to_city}
-                    </CardTitle>
-                    <CardDescription>
-                      <span
-                        className={`inline-block px-2 py-1 rounded-full text-xs ${
-                          trip.status === "active"
-                            ? "bg-accent text-accent-foreground"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {trip.status === "active" ? "نشط" : trip.status === "completed" ? "مكتمل" : "ملغي"}
+          {trips.map((trip) => {
+            const tripBookings = bookings.filter(b => b.trip_id === trip.id);
+            const bookingsByStation = trip.route_cities?.reduce((acc: any, city: string) => {
+              acc[city] = tripBookings.filter(b => b.to_city === city);
+              return acc;
+            }, {});
+
+            return (
+              <Card key={trip.id} className="shadow-soft">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-xl mb-1">
+                        {trip.from_city} → {trip.to_city}
+                      </CardTitle>
+                      <CardDescription>
+                        <span
+                          className={`inline-block px-2 py-1 rounded-full text-xs ${
+                            trip.status === "active"
+                              ? "bg-accent text-accent-foreground"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {trip.status === "active" ? "نشط" : trip.status === "completed" ? "مكتمل" : "ملغي"}
+                        </span>
+                      </CardDescription>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-primary">{trip.price} دج</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span>{trip.route_cities?.length || 0} محطة</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span>
+                        {trip.available_seats} / {trip.seats} مقعد متاح
                       </span>
-                    </CardDescription>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-primary">{trip.price} دج</p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>
-                      {new Date(trip.departure_time).toLocaleString("ar-DZ", {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                      })}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span>
-                      {trip.available_seats} / {trip.seats} مقعد متاح
-                    </span>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => navigate(`/driver/trip/${trip.id}`)}
-                >
-                  عرض التفاصيل
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+
+                  {tripBookings.length > 0 && (
+                    <div className="p-3 bg-secondary rounded-lg space-y-2">
+                      <p className="text-sm font-semibold">الركاب حسب المحطات:</p>
+                      {Object.entries(bookingsByStation || {}).map(([city, cityBookings]: [string, any]) => (
+                        cityBookings.length > 0 && (
+                          <div key={city} className="text-sm">
+                            <span className="font-medium">{city}:</span>{" "}
+                            <span className="text-muted-foreground">
+                              {cityBookings.map((b: any) => b.profiles?.full_name || "غير معروف").join("، ")}
+                            </span>
+                          </div>
+                        )
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </div>
