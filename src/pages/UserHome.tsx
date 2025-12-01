@@ -40,6 +40,7 @@ const UserHome = () => {
         `)
         .eq("status", "active")
         .gt("available_seats", 0)
+        .gt("departure_time", new Date().toISOString())
         .order("departure_time", { ascending: true });
 
       const { data, error } = await query;
