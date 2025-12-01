@@ -5,7 +5,18 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, MapPin, Clock, DollarSign, Users } from "lucide-react";
+import { Plus, MapPin, Clock, DollarSign, Users, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const DriverDashboard = () => {
   const { user } = useAuth();
@@ -62,6 +73,22 @@ const DriverDashboard = () => {
       setBookings(data || []);
     } catch (error: any) {
       toast.error("حدث خطأ في جلب الحجوزات");
+    }
+  };
+
+  const handleDeleteTrip = async (tripId: string) => {
+    try {
+      const { error } = await supabase
+        .from("trips")
+        .delete()
+        .eq("id", tripId);
+
+      if (error) throw error;
+      toast.success("تم حذف الرحلة بنجاح");
+      fetchDriverTrips();
+      fetchDriverBookings();
+    } catch (error: any) {
+      toast.error("حدث خطأ في حذف الرحلة");
     }
   };
 
@@ -159,6 +186,29 @@ const DriverDashboard = () => {
                       ))}
                     </div>
                   )}
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm" className="w-full mt-4">
+                        <Trash2 className="ml-2 h-4 w-4" />
+                        حذف الرحلة
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          سيتم حذف هذه الرحلة نهائياً وجميع الحجوزات المرتبطة بها. لا يمكن التراجع عن هذا الإجراء.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>تراجع</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeleteTrip(trip.id)}>
+                          تأكيد الحذف
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </CardContent>
               </Card>
             );
