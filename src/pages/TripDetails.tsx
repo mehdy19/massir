@@ -18,6 +18,7 @@ const TripDetails = () => {
   const [booking, setBooking] = useState(false);
   const [fromCity, setFromCity] = useState("");
   const [toCity, setToCity] = useState("");
+  const [currentPrice, setCurrentPrice] = useState<number | null>(null);
 
   useEffect(() => {
     fetchTripDetails();
@@ -44,6 +45,20 @@ const TripDetails = () => {
     }
   };
 
+  // Calculate price when fromCity changes
+  useEffect(() => {
+    if (fromCity && trip?.route_prices) {
+      const price = trip.route_prices[fromCity];
+      if (price !== undefined) {
+        setCurrentPrice(price);
+      } else {
+        setCurrentPrice(null);
+      }
+    } else {
+      setCurrentPrice(null);
+    }
+  }, [fromCity, trip]);
+
   const handleBooking = async () => {
     if (!user) {
       toast.error("يجب تسجيل الدخول أولاً");
@@ -64,6 +79,11 @@ const TripDetails = () => {
       return;
     }
 
+    if (currentPrice === null) {
+      toast.error("لا يوجد سعر محدد لهذه المحطة");
+      return;
+    }
+
     setBooking(true);
     try {
       const { error } = await supabase.from("bookings").insert({
@@ -72,6 +92,7 @@ const TripDetails = () => {
         seats_booked: 1,
         from_city: fromCity,
         to_city: toCity,
+        price_paid: currentPrice,
       });
 
       if (error) throw error;
@@ -160,7 +181,11 @@ const TripDetails = () => {
                   <DollarSign className="h-5 w-5 text-primary mt-0.5" />
                   <div>
                     <p className="font-semibold mb-1">السعر</p>
-                    <p className="text-2xl font-bold text-primary">{trip.price} دج</p>
+                    {currentPrice !== null ? (
+                      <p className="text-2xl font-bold text-primary">{currentPrice} دج</p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">اختر محطة الانطلاق</p>
+                    )}
                   </div>
                 </div>
 
@@ -185,11 +210,14 @@ const TripDetails = () => {
                       <SelectValue placeholder="اختر محطة الانطلاق" />
                     </SelectTrigger>
                     <SelectContent>
-                      {trip.route_cities?.map((city: string) => (
-                        <SelectItem key={city} value={city}>
-                          {city}
-                        </SelectItem>
-                      ))}
+                      {trip.route_cities?.slice(0, -1).map((city: string) => {
+                        const price = trip.route_prices?.[city];
+                        return (
+                          <SelectItem key={city} value={city}>
+                            {city} {price ? `- ${price} دج` : ""}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>

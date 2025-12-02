@@ -156,7 +156,16 @@ const UserHome = () => {
                     </CardDescription>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-primary">{trip.price} دج</p>
+                    {trip.route_prices && Object.keys(trip.route_prices).length > 0 ? (
+                      <div>
+                        <p className="text-2xl font-bold text-primary">
+                          {Math.min(...Object.values(trip.route_prices).map(Number))} - {Math.max(...Object.values(trip.route_prices).map(Number))} دج
+                        </p>
+                        <p className="text-xs text-muted-foreground">حسب المحطة</p>
+                      </div>
+                    ) : (
+                      <p className="text-2xl font-bold text-primary">{trip.price} دج</p>
+                    )}
                   </div>
                 </div>
               </CardHeader>

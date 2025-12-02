@@ -19,6 +19,7 @@ export type Database = {
           created_at: string
           from_city: string
           id: string
+          price_paid: number | null
           seats_booked: number
           status: string
           to_city: string
@@ -29,6 +30,7 @@ export type Database = {
           created_at?: string
           from_city?: string
           id?: string
+          price_paid?: number | null
           seats_booked?: number
           status?: string
           to_city?: string
@@ -39,6 +41,7 @@ export type Database = {
           created_at?: string
           from_city?: string
           id?: string
+          price_paid?: number | null
           seats_booked?: number
           status?: string
           to_city?: string
@@ -100,6 +103,7 @@ export type Database = {
           id: string
           price: number
           route_cities: string[]
+          route_prices: Json | null
           seats: number
           status: string
           to_city: string
@@ -115,6 +119,7 @@ export type Database = {
           id?: string
           price: number
           route_cities?: string[]
+          route_prices?: Json | null
           seats: number
           status?: string
           to_city: string
@@ -130,6 +135,7 @@ export type Database = {
           id?: string
           price?: number
           route_cities?: string[]
+          route_prices?: Json | null
           seats?: number
           status?: string
           to_city?: string
