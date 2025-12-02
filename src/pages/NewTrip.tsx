@@ -27,7 +27,7 @@ const NewTrip = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [routeCities, setRouteCities] = useState<string[]>(["", ""]);
-  const [price, setPrice] = useState("");
+  const [routePrices, setRoutePrices] = useState<{ [key: string]: string }>({});
   const [seats, setSeats] = useState("");
   const [departureTime, setDepartureTime] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,8 +44,23 @@ const NewTrip = () => {
 
   const updateCity = (index: number, value: string) => {
     const newCities = [...routeCities];
+    const oldCity = newCities[index];
     newCities[index] = value;
     setRouteCities(newCities);
+    
+    // Update prices object - remove old city and add new city
+    if (oldCity && oldCity !== value) {
+      const newPrices = { ...routePrices };
+      delete newPrices[oldCity];
+      setRoutePrices(newPrices);
+    }
+  };
+
+  const updatePrice = (city: string, price: string) => {
+    setRoutePrices({
+      ...routePrices,
+      [city]: price
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,13 +74,29 @@ const NewTrip = () => {
       return;
     }
 
+    // Validate that all cities (except last) have prices
+    const citiesNeedingPrices = filledCities.slice(0, -1);
+    const missingPrices = citiesNeedingPrices.filter(city => !routePrices[city] || routePrices[city] === "");
+    if (missingPrices.length > 0) {
+      toast.error("يجب إدخال سعر لكل محطة");
+      setLoading(false);
+      return;
+    }
+
+    // Convert prices to numbers
+    const pricesObject: { [key: string]: number } = {};
+    citiesNeedingPrices.forEach(city => {
+      pricesObject[city] = parseFloat(routePrices[city]);
+    });
+
     try {
       const { error } = await supabase.from("trips").insert({
         driver_id: user?.id,
         from_city: filledCities[0],
         to_city: filledCities[filledCities.length - 1],
         route_cities: filledCities,
-        price: parseFloat(price),
+        route_prices: pricesObject,
+        price: pricesObject[filledCities[0]], // Keep for backward compatibility
         seats: parseInt(seats),
         available_seats: parseInt(seats),
         departure_time: new Date(departureTime).toISOString(),
@@ -112,70 +143,76 @@ const NewTrip = () => {
                 </div>
                 
                 {routeCities.map((city, index) => (
-                  <div key={index} className="flex gap-2 items-center">
-                    <div className="flex-1 space-y-2">
-                      <Label htmlFor={`city-${index}`}>
-                        {index === 0 ? "مدينة الانطلاق" : index === routeCities.length - 1 ? "مدينة الوصول" : `محطة ${index}`}
-                      </Label>
-                      <Select 
-                        value={city} 
-                        onValueChange={(value) => updateCity(index, value)}
-                        required
-                      >
-                        <SelectTrigger id={`city-${index}`}>
-                          <SelectValue placeholder="اختر المدينة" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {CITIES.map((cityOption) => (
-                            <SelectItem key={cityOption} value={cityOption}>
-                              {cityOption}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  <div key={index} className="space-y-3 pb-4 border-b last:border-b-0">
+                    <div className="flex gap-2 items-start">
+                      <div className="flex-1 space-y-2">
+                        <Label htmlFor={`city-${index}`}>
+                          {index === 0 ? "مدينة الانطلاق" : index === routeCities.length - 1 ? "مدينة الوصول" : `محطة ${index}`}
+                        </Label>
+                        <Select 
+                          value={city} 
+                          onValueChange={(value) => updateCity(index, value)}
+                          required
+                        >
+                          <SelectTrigger id={`city-${index}`}>
+                            <SelectValue placeholder="اختر المدينة" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {CITIES.map((cityOption) => (
+                              <SelectItem key={cityOption} value={cityOption}>
+                                {cityOption}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {routeCities.length > 2 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeCity(index)}
+                          className="mt-8"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
-                    {routeCities.length > 2 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeCity(index)}
-                        className="mt-8"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                    
+                    {/* Show price input for all cities except the last one */}
+                    {index < routeCities.length - 1 && city && (
+                      <div className="mr-8 space-y-2">
+                        <Label htmlFor={`price-${index}`} className="text-sm text-muted-foreground">
+                          السعر من {city} إلى {routeCities[routeCities.length - 1] || "الوجهة النهائية"} (دج)
+                        </Label>
+                        <Input
+                          id={`price-${index}`}
+                          type="number"
+                          value={routePrices[city] || ""}
+                          onChange={(e) => updatePrice(city, e.target.value)}
+                          required
+                          min="1"
+                          placeholder="السعر بالدينار"
+                          className="max-w-xs"
+                        />
+                      </div>
                     )}
                   </div>
                 ))}
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="price">السعر (دج)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    required
-                    min="1"
-                    placeholder="1000"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="seats">عدد المقاعد</Label>
-                  <Input
-                    id="seats"
-                    type="number"
-                    value={seats}
-                    onChange={(e) => setSeats(e.target.value)}
-                    required
-                    min="1"
-                    max="50"
-                    placeholder="20"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="seats">عدد المقاعد</Label>
+                <Input
+                  id="seats"
+                  type="number"
+                  value={seats}
+                  onChange={(e) => setSeats(e.target.value)}
+                  required
+                  min="1"
+                  max="50"
+                  placeholder="20"
+                />
               </div>
 
               <div className="space-y-2">
