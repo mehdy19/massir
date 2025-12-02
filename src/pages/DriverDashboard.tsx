@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Plus, MapPin, Clock, DollarSign, Users, Trash2 } from "lucide-react";
+import ShareLocationButton from "@/components/ShareLocationButton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -90,6 +91,10 @@ const DriverDashboard = () => {
     } catch (error: any) {
       toast.error("حدث خطأ في حذف الرحلة");
     }
+  };
+
+  const isExpired = (departureTime: string) => {
+    return new Date(departureTime) < new Date();
   };
 
   if (loading) {
@@ -186,6 +191,13 @@ const DriverDashboard = () => {
                       ))}
                     </div>
                   )}
+
+                  <div className="pt-2">
+                    <ShareLocationButton 
+                      tripId={trip.id} 
+                      isActive={trip.status === "active" && !isExpired(trip.departure_time)}
+                    />
+                  </div>
 
                   <AlertDialog>
                     <AlertDialogTrigger asChild>

@@ -11,6 +11,7 @@ import MyBookings from "./pages/MyBookings";
 import DriverDashboard from "./pages/DriverDashboard";
 import NewTrip from "./pages/NewTrip";
 import Account from "./pages/Account";
+import TrackTrip from "./pages/TrackTrip";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 
@@ -58,6 +59,7 @@ const AppRoutes = () => {
         <Route path="/" element={<ProtectedRoute allowedRole="user"><UserHome /></ProtectedRoute>} />
         <Route path="/trip/:id" element={<ProtectedRoute allowedRole="user"><TripDetails /></ProtectedRoute>} />
         <Route path="/bookings" element={<ProtectedRoute allowedRole="user"><MyBookings /></ProtectedRoute>} />
+        <Route path="/track/:id" element={<ProtectedRoute allowedRole="user"><TrackTrip /></ProtectedRoute>} />
         
         {/* Driver Routes */}
         <Route path="/driver" element={<ProtectedRoute allowedRole="driver"><DriverDashboard /></ProtectedRoute>} />
