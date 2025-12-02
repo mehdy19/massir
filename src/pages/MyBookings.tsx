@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { MapPin, Clock, DollarSign, Users, X } from "lucide-react";
+import { MapPin, Clock, DollarSign, Users, X, Navigation } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -163,30 +163,44 @@ const MyBookings = () => {
                   </div>
                 </div>
 
-                {!expired && !isCancelled && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" className="w-full">
-                        <X className="ml-2 h-4 w-4" />
-                        إلغاء الحجز
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          سيتم إلغاء حجزك في هذه الرحلة ولن تتمكن من التراجع عن هذا الإجراء.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>تراجع</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleCancelBooking(booking.id)}>
-                          تأكيد الإلغاء
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
+                <div className="space-y-2">
+                  {!expired && !isCancelled && (
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => navigate(`/track/${booking.trips.id}`)}
+                    >
+                      <Navigation className="ml-2 h-4 w-4" />
+                      تتبع الرحلة على الخريطة
+                    </Button>
+                  )}
+                  
+                  {!expired && !isCancelled && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm" className="w-full">
+                          <X className="ml-2 h-4 w-4" />
+                          إلغاء الحجز
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            سيتم إلغاء حجزك في هذه الرحلة ولن تتمكن من التراجع عن هذا الإجراء.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>تراجع</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleCancelBooking(booking.id)}>
+                            تأكيد الإلغاء
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
               </CardContent>
             </Card>
             );
