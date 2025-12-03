@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_bookings: {
+        Row: {
+          ad_id: string
+          created_at: string
+          id: string
+          seats_booked: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          ad_id: string
+          created_at?: string
+          id?: string
+          seats_booked?: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          ad_id?: string
+          created_at?: string
+          id?: string
+          seats_booked?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_bookings_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads: {
+        Row: {
+          available_seats: number
+          created_at: string
+          departure_date: string
+          description: string | null
+          destination: string
+          driver_id: string
+          id: string
+          image_url: string
+          phone: string | null
+          price: number
+          seats: number
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          available_seats?: number
+          created_at?: string
+          departure_date: string
+          description?: string | null
+          destination: string
+          driver_id: string
+          id?: string
+          image_url: string
+          phone?: string | null
+          price: number
+          seats?: number
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          available_seats?: number
+          created_at?: string
+          departure_date?: string
+          description?: string | null
+          destination?: string
+          driver_id?: string
+          id?: string
+          image_url?: string
+          phone?: string | null
+          price?: number
+          seats?: number
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           created_at: string

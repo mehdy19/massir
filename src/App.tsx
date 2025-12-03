@@ -12,6 +12,9 @@ import DriverDashboard from "./pages/DriverDashboard";
 import NewTrip from "./pages/NewTrip";
 import Account from "./pages/Account";
 import TrackTrip from "./pages/TrackTrip";
+import AdDetails from "./pages/AdDetails";
+import DriverAds from "./pages/DriverAds";
+import NewAd from "./pages/NewAd";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 
@@ -60,10 +63,13 @@ const AppRoutes = () => {
         <Route path="/trip/:id" element={<ProtectedRoute allowedRole="user"><TripDetails /></ProtectedRoute>} />
         <Route path="/bookings" element={<ProtectedRoute allowedRole="user"><MyBookings /></ProtectedRoute>} />
         <Route path="/track/:id" element={<ProtectedRoute allowedRole="user"><TrackTrip /></ProtectedRoute>} />
+        <Route path="/ad/:id" element={<ProtectedRoute allowedRole="user"><AdDetails /></ProtectedRoute>} />
         
         {/* Driver Routes */}
         <Route path="/driver" element={<ProtectedRoute allowedRole="driver"><DriverDashboard /></ProtectedRoute>} />
         <Route path="/driver/new-trip" element={<ProtectedRoute allowedRole="driver"><NewTrip /></ProtectedRoute>} />
+        <Route path="/driver/ads" element={<ProtectedRoute allowedRole="driver"><DriverAds /></ProtectedRoute>} />
+        <Route path="/driver/new-ad" element={<ProtectedRoute allowedRole="driver"><NewAd /></ProtectedRoute>} />
         
         {/* Shared Routes */}
         <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
