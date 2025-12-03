@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, MapPin, Clock, DollarSign, Users, Trash2 } from "lucide-react";
+import { Plus, MapPin, Users, Trash2, Image } from "lucide-react";
 import ShareLocationButton from "@/components/ShareLocationButton";
 import {
   AlertDialog,
@@ -108,14 +108,24 @@ const DriverDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-hero pb-20">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">لوحة القيادة</h1>
-            <p className="text-muted-foreground">إدارة رحلاتك</p>
+        <div className="mb-8 flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold text-foreground mb-2">لوحة القيادة</h1>
+              <p className="text-muted-foreground">إدارة رحلاتك</p>
+            </div>
+            <Button onClick={() => navigate("/driver/new-trip")} size="lg">
+              <Plus className="ml-2 h-5 w-5" />
+              رحلة جديدة
+            </Button>
           </div>
-          <Button onClick={() => navigate("/driver/new-trip")} size="lg">
-            <Plus className="ml-2 h-5 w-5" />
-            رحلة جديدة
+          <Button
+            variant="secondary"
+            onClick={() => navigate("/driver/ads")}
+            className="w-full"
+          >
+            <Image className="ml-2 h-5 w-5" />
+            إدارة الإعلانات السياحية
           </Button>
         </div>
 
