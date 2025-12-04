@@ -1,6 +1,7 @@
-import { Home, Calendar, User } from "lucide-react";
+import { Home, Calendar, User, Bell } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/lib/auth";
+import NotificationBell from "@/components/NotificationBell";
 
 const BottomNav = () => {
   const { userRole } = useAuth();
@@ -32,6 +33,12 @@ const BottomNav = () => {
             <span className="text-xs font-semibold">{label}</span>
           </NavLink>
         ))}
+        {userRole === "driver" && (
+          <div className="flex flex-col items-center gap-1 py-2 px-3">
+            <NotificationBell />
+            <span className="text-xs font-semibold text-muted-foreground">الإشعارات</span>
+          </div>
+        )}
       </div>
     </nav>
   );
