@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowRight, Image as ImageIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { ImageUpload } from "@/components/ImageUpload";
 
 const NewAd = () => {
   const { user } = useAuth();
@@ -97,27 +98,12 @@ const NewAd = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image_url">رابط الصورة *</Label>
-                <Input
-                  id="image_url"
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  required
+                <Label>صورة الإعلان *</Label>
+                <ImageUpload
+                  userId={user?.id || ""}
+                  currentImage={formData.image_url}
+                  onUpload={(url) => setFormData({ ...formData, image_url: url })}
                 />
-                {formData.image_url && (
-                  <div className="mt-2 rounded-xl overflow-hidden border border-border">
-                    <img
-                      src={formData.image_url}
-                      alt="معاينة"
-                      className="w-full h-48 object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  </div>
-                )}
               </div>
 
               <div className="space-y-2">
