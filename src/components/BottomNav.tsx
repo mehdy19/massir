@@ -33,12 +33,10 @@ const BottomNav = () => {
             <span className="text-xs font-semibold">{label}</span>
           </NavLink>
         ))}
-        {userRole === "driver" && (
-          <div className="flex flex-col items-center gap-1 py-2 px-3">
-            <NotificationBell />
-            <span className="text-xs font-semibold text-muted-foreground">الإشعارات</span>
-          </div>
-        )}
+        <div className="flex flex-col items-center gap-1 py-2 px-3">
+          <NotificationBell />
+          <span className="text-xs font-semibold text-muted-foreground">الإشعارات</span>
+        </div>
       </div>
     </nav>
   );
