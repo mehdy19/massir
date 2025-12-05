@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { MapPin, Clock, DollarSign, Users, ArrowRight } from "lucide-react";
+import { MapPin, Clock, DollarSign, Users, ArrowRight, Minus, Plus } from "lucide-react";
 
 const TripDetails = () => {
   const { id } = useParams();
@@ -18,6 +18,7 @@ const TripDetails = () => {
   const [booking, setBooking] = useState(false);
   const [fromCity, setFromCity] = useState("");
   const [toCity, setToCity] = useState("");
+  const [seatsCount, setSeatsCount] = useState(1);
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
 
   useEffect(() => {
@@ -84,25 +85,42 @@ const TripDetails = () => {
       return;
     }
 
+    if (seatsCount > trip.available_seats) {
+      toast.error(`لا يتوفر سوى ${trip.available_seats} مقعد`);
+      return;
+    }
+
     setBooking(true);
     try {
       const { error } = await supabase.from("bookings").insert({
         trip_id: trip.id,
         user_id: user.id,
-        seats_booked: 1,
+        seats_booked: seatsCount,
         from_city: fromCity,
         to_city: toCity,
-        price_paid: currentPrice,
+        price_paid: currentPrice ? currentPrice * seatsCount : null,
       });
 
       if (error) throw error;
 
-      toast.success("تم الحجز بنجاح!");
+      toast.success(`تم حجز ${seatsCount} مقعد بنجاح!`);
       navigate("/bookings");
     } catch (error: any) {
       toast.error(error.message || "حدث خطأ في الحجز");
     } finally {
       setBooking(false);
+    }
+  };
+
+  const incrementSeats = () => {
+    if (seatsCount < trip?.available_seats) {
+      setSeatsCount(prev => prev + 1);
+    }
+  };
+
+  const decrementSeats = () => {
+    if (seatsCount > 1) {
+      setSeatsCount(prev => prev - 1);
     }
   };
 
@@ -239,13 +257,46 @@ const TripDetails = () => {
                 </div>
               </div>
 
+              {/* محدد عدد المقاعد */}
+              <div className="space-y-2">
+                <Label>عدد المقاعد</Label>
+                <div className="flex items-center justify-center gap-4 p-4 bg-secondary rounded-lg">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={decrementSeats}
+                    disabled={seatsCount <= 1}
+                    className="h-10 w-10"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="text-2xl font-bold min-w-[3rem] text-center">{seatsCount}</span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={incrementSeats}
+                    disabled={seatsCount >= trip.available_seats}
+                    className="h-10 w-10"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                {currentPrice !== null && (
+                  <p className="text-center text-muted-foreground">
+                    الإجمالي: <span className="font-bold text-primary">{currentPrice * seatsCount} دج</span>
+                  </p>
+                )}
+              </div>
+
               <Button
                 className="w-full"
                 size="lg"
                 onClick={handleBooking}
                 disabled={booking || trip.available_seats === 0 || !fromCity || !toCity}
               >
-                {booking ? "جاري الحجز..." : trip.available_seats === 0 ? "الرحلة ممتلئة" : "احجز مقعد"}
+                {booking ? "جاري الحجز..." : trip.available_seats === 0 ? "الرحلة ممتلئة" : `احجز ${seatsCount} مقعد`}
               </Button>
             </div>
           </CardContent>
