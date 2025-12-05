@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, MapPin, Users, Trash2, Image } from "lucide-react";
+import { Plus, MapPin, Users, Trash2, Image, PlayCircle, CheckCircle } from "lucide-react";
 import ShareLocationButton from "@/components/ShareLocationButton";
 import {
   AlertDialog,
@@ -93,6 +93,36 @@ const DriverDashboard = () => {
     }
   };
 
+  const handleStartTrip = async (tripId: string) => {
+    try {
+      const { error } = await supabase
+        .from("trips")
+        .update({ status: "started" })
+        .eq("id", tripId);
+
+      if (error) throw error;
+      toast.success("تم بدء الرحلة! سيتم إشعار جميع الركاب");
+      fetchDriverTrips();
+    } catch (error: any) {
+      toast.error("حدث خطأ في بدء الرحلة");
+    }
+  };
+
+  const handleCompleteTrip = async (tripId: string) => {
+    try {
+      const { error } = await supabase
+        .from("trips")
+        .update({ status: "completed" })
+        .eq("id", tripId);
+
+      if (error) throw error;
+      toast.success("تم إكمال الرحلة بنجاح");
+      fetchDriverTrips();
+    } catch (error: any) {
+      toast.error("حدث خطأ في إكمال الرحلة");
+    }
+  };
+
   const isExpired = (departureTime: string) => {
     return new Date(departureTime) < new Date();
   };
@@ -160,10 +190,14 @@ const DriverDashboard = () => {
                           className={`inline-block px-2 py-1 rounded-full text-xs ${
                             trip.status === "active"
                               ? "bg-accent text-accent-foreground"
-                              : "bg-muted text-muted-foreground"
+                              : trip.status === "started"
+                              ? "bg-primary text-primary-foreground"
+                              : trip.status === "completed"
+                              ? "bg-muted text-muted-foreground"
+                              : "bg-destructive text-destructive-foreground"
                           }`}
                         >
-                          {trip.status === "active" ? "نشط" : trip.status === "completed" ? "مكتمل" : "ملغي"}
+                          {trip.status === "active" ? "نشط" : trip.status === "started" ? "في الطريق" : trip.status === "completed" ? "مكتمل" : "ملغي"}
                         </span>
                       </CardDescription>
                     </div>
@@ -202,11 +236,33 @@ const DriverDashboard = () => {
                     </div>
                   )}
 
-                  <div className="pt-2">
+                  <div className="pt-2 space-y-2">
                     <ShareLocationButton 
                       tripId={trip.id} 
-                      isActive={trip.status === "active" && !isExpired(trip.departure_time)}
+                      isActive={(trip.status === "active" || trip.status === "started") && !isExpired(trip.departure_time)}
                     />
+                    
+                    {/* أزرار التحكم في حالة الرحلة */}
+                    {trip.status === "active" && (
+                      <Button 
+                        onClick={() => handleStartTrip(trip.id)} 
+                        className="w-full bg-primary hover:bg-primary/90"
+                      >
+                        <PlayCircle className="ml-2 h-4 w-4" />
+                        بدء الرحلة
+                      </Button>
+                    )}
+                    
+                    {trip.status === "started" && (
+                      <Button 
+                        onClick={() => handleCompleteTrip(trip.id)} 
+                        variant="secondary"
+                        className="w-full"
+                      >
+                        <CheckCircle className="ml-2 h-4 w-4" />
+                        إنهاء الرحلة
+                      </Button>
+                    )}
                   </div>
 
                   <AlertDialog>
