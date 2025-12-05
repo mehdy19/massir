@@ -17,7 +17,7 @@ const Account = () => {
         <Card className="max-w-2xl mx-auto shadow-medium">
           <CardHeader>
             <CardTitle>معلومات الحساب</CardTitle>
-            <CardDescription>تفاصيل حسابك في Rihlatek</CardDescription>
+            <CardDescription>تفاصيل حسابك في مسير</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-start gap-3 p-4 bg-secondary rounded-lg">
