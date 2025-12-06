@@ -8,19 +8,7 @@ import { Search, Clock, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import AdsSlider from "@/components/AdsSlider";
-
-const CITIES = [
-  "الجزائر العاصمة",
-  "وهران",
-  "قسنطينة",
-  "عنابة",
-  "تلمسان",
-  "باتنة",
-  "سطيف",
-  "بجاية",
-  "تيزي وزو",
-  "بسكرة",
-];
+import { WILAYAS } from "@/constants/cities";
 
 const UserHome = () => {
   const [fromCity, setFromCity] = useState("");
@@ -107,7 +95,7 @@ const UserHome = () => {
                       <SelectValue placeholder="اختر المدينة" />
                     </SelectTrigger>
                     <SelectContent>
-                      {CITIES.map((city) => (
+                      {WILAYAS.map((city) => (
                         <SelectItem key={city} value={city}>
                           {city}
                         </SelectItem>
@@ -123,7 +111,7 @@ const UserHome = () => {
                       <SelectValue placeholder="اختر المدينة" />
                     </SelectTrigger>
                     <SelectContent>
-                      {CITIES.map((city) => (
+                      {WILAYAS.map((city) => (
                         <SelectItem key={city} value={city}>
                           {city}
                         </SelectItem>
