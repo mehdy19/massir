@@ -9,19 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ArrowRight, Plus, X } from "lucide-react";
-
-const CITIES = [
-  "الجزائر العاصمة",
-  "وهران",
-  "قسنطينة",
-  "عنابة",
-  "تلمسان",
-  "باتنة",
-  "سطيف",
-  "بجاية",
-  "تيزي وزو",
-  "بسكرة",
-];
+import { WILAYAS } from "@/constants/cities";
 
 const NewTrip = () => {
   const { user } = useAuth();
@@ -158,7 +146,7 @@ const NewTrip = () => {
                             <SelectValue placeholder="اختر المدينة" />
                           </SelectTrigger>
                           <SelectContent>
-                            {CITIES.map((cityOption) => (
+                            {WILAYAS.map((cityOption) => (
                               <SelectItem key={cityOption} value={cityOption}>
                                 {cityOption}
                               </SelectItem>
