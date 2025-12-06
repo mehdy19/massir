@@ -2,15 +2,28 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, LogOut, Camera, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { User, Mail, LogOut, Camera, Loader2, Phone, Save, Pencil } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const profileSchema = z.object({
+  full_name: z.string().trim().min(2, "الاسم يجب أن يكون حرفين على الأقل").max(50, "الاسم طويل جداً"),
+  phone: z.string().trim().regex(/^[0-9+\s-]*$/, "رقم الهاتف غير صالح").max(20, "رقم الهاتف طويل جداً").optional().or(z.literal("")),
+});
 
 const Account = () => {
   const { user, userRole, signOut } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [errors, setErrors] = useState<{ full_name?: string; phone?: string }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -22,12 +35,14 @@ const Account = () => {
   const fetchProfile = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("avatar_url")
+      .select("avatar_url, full_name, phone")
       .eq("id", user?.id)
       .single();
     
-    if (data?.avatar_url) {
+    if (data) {
       setAvatarUrl(data.avatar_url);
+      setFullName(data.full_name || "");
+      setPhone(data.phone || "");
     }
   };
 
@@ -77,6 +92,45 @@ const Account = () => {
     }
   };
 
+  const handleSaveProfile = async () => {
+    if (!user) return;
+
+    setErrors({});
+    
+    const result = profileSchema.safeParse({ full_name: fullName, phone });
+    
+    if (!result.success) {
+      const fieldErrors: { full_name?: string; phone?: string } = {};
+      result.error.errors.forEach((err) => {
+        const field = err.path[0] as "full_name" | "phone";
+        fieldErrors[field] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ 
+          full_name: result.data.full_name,
+          phone: result.data.phone || null
+        })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      toast.success("تم حفظ المعلومات بنجاح");
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      toast.error("فشل في حفظ المعلومات");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-hero pb-20">
       <div className="container mx-auto px-4 py-8">
@@ -121,6 +175,100 @@ const Account = () => {
               </div>
               <p className="text-sm text-muted-foreground">اضغط على الكاميرا لتغيير الصورة</p>
             </div>
+
+            {/* Editable Fields */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-primary" />
+                  الاسم الكامل
+                </Label>
+                {isEditing ? (
+                  <div>
+                    <Input
+                      id="fullName"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="أدخل اسمك الكامل"
+                      className={errors.full_name ? "border-destructive" : ""}
+                      maxLength={50}
+                    />
+                    {errors.full_name && (
+                      <p className="text-sm text-destructive mt-1">{errors.full_name}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-3 bg-secondary rounded-lg">
+                    <p className="text-foreground">{fullName || "لم يتم تحديد الاسم"}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-primary" />
+                  رقم الهاتف
+                </Label>
+                {isEditing ? (
+                  <div>
+                    <Input
+                      id="phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="أدخل رقم الهاتف"
+                      className={errors.phone ? "border-destructive" : ""}
+                      maxLength={20}
+                      dir="ltr"
+                    />
+                    {errors.phone && (
+                      <p className="text-sm text-destructive mt-1">{errors.phone}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-3 bg-secondary rounded-lg">
+                    <p className="text-foreground" dir="ltr">{phone || "لم يتم تحديد رقم الهاتف"}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Edit/Save Button */}
+            {isEditing ? (
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleSaveProfile}
+                  disabled={saving}
+                  className="flex-1"
+                >
+                  {saving ? (
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="ml-2 h-4 w-4" />
+                  )}
+                  حفظ التغييرات
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditing(false);
+                    fetchProfile();
+                    setErrors({});
+                  }}
+                  disabled={saving}
+                >
+                  إلغاء
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                onClick={() => setIsEditing(true)}
+                className="w-full"
+              >
+                <Pencil className="ml-2 h-4 w-4" />
+                تعديل المعلومات
+              </Button>
+            )}
 
             <div className="flex items-start gap-3 p-4 bg-secondary rounded-lg">
               <Mail className="h-5 w-5 text-primary mt-0.5" />
