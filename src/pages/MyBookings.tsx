@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { MapPin, Clock, Users, X, Navigation, Calendar, Palmtree, Car } from "lucide-react";
+import { MapPin, Clock, Users, X, Navigation, Calendar, Palmtree, Car, MessageCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
@@ -100,6 +100,18 @@ const MyBookings = () => {
     } catch (error: any) {
       toast.error("حدث خطأ في إلغاء الحجز");
     }
+  };
+
+  const openWhatsApp = (phone: string | null, driverName: string | null, tripInfo: string) => {
+    if (!phone) {
+      toast.error("رقم هاتف السائق غير متوفر");
+      return;
+    }
+    
+    // Clean phone number (remove spaces, dashes, etc.)
+    const cleanPhone = phone.replace(/[\s\-\(\)]/g, "");
+    const message = encodeURIComponent(`مرحباً ${driverName || "السائق"}، أنا حجزت معك في ${tripInfo}`);
+    window.open(`https://wa.me/${cleanPhone}?text=${message}`, "_blank");
   };
 
   const isExpired = (departureTime: string) => {
@@ -212,15 +224,30 @@ const MyBookings = () => {
 
                       <div className="space-y-2">
                         {!expired && !isCancelled && (
-                          <Button 
-                            variant="default" 
-                            size="sm" 
-                            className="w-full"
-                            onClick={() => navigate(`/track/${booking.trips.id}`)}
-                          >
-                            <Navigation className="ml-2 h-4 w-4" />
-                            تتبع الرحلة على الخريطة
-                          </Button>
+                          <>
+                            <Button 
+                              variant="default" 
+                              size="sm" 
+                              className="w-full"
+                              onClick={() => navigate(`/track/${booking.trips.id}`)}
+                            >
+                              <Navigation className="ml-2 h-4 w-4" />
+                              تتبع الرحلة على الخريطة
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full bg-green-500/10 border-green-500/30 text-green-600 hover:bg-green-500/20"
+                              onClick={() => openWhatsApp(
+                                booking.trips.profiles?.phone,
+                                booking.trips.profiles?.full_name,
+                                `رحلة ${booking.from_city} → ${booking.to_city}`
+                              )}
+                            >
+                              <MessageCircle className="ml-2 h-4 w-4" />
+                              تواصل مع السائق عبر واتساب
+                            </Button>
+                          </>
                         )}
                         
                         {!expired && !isCancelled && (
@@ -342,6 +369,22 @@ const MyBookings = () => {
                         >
                           عرض التفاصيل
                         </Button>
+                        
+                        {!expired && !isCancelled && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full bg-green-500/10 border-green-500/30 text-green-600 hover:bg-green-500/20"
+                            onClick={() => openWhatsApp(
+                              booking.ads.profiles?.phone,
+                              booking.ads.profiles?.full_name,
+                              `رحلة "${booking.ads.title}" إلى ${booking.ads.destination}`
+                            )}
+                          >
+                            <MessageCircle className="ml-2 h-4 w-4" />
+                            تواصل مع المنظم عبر واتساب
+                          </Button>
+                        )}
                         
                         {!expired && !isCancelled && (
                           <AlertDialog>
