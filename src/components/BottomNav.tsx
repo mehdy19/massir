@@ -9,12 +9,10 @@ const BottomNav = () => {
   const userLinks = [
     { to: "/", icon: Home, label: "الرئيسية" },
     { to: "/bookings", icon: Calendar, label: "حجوزاتي" },
-    { to: "/account", icon: User, label: "حسابي" },
   ];
 
   const driverLinks = [
     { to: "/driver", icon: Home, label: "الرئيسية" },
-    { to: "/account", icon: User, label: "حسابي" },
   ];
 
   const links = userRole === "driver" ? driverLinks : userLinks;
@@ -37,6 +35,14 @@ const BottomNav = () => {
           <NotificationBell />
           <span className="text-xs font-semibold text-muted-foreground">الإشعارات</span>
         </div>
+        <NavLink
+          to="/account"
+          className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-all py-2 px-3 rounded-lg hover:bg-primary/5"
+          activeClassName="text-primary bg-accent/20"
+        >
+          <User className="h-5 w-5 stroke-[2px]" />
+          <span className="text-xs font-semibold">حسابي</span>
+        </NavLink>
       </div>
     </nav>
   );
