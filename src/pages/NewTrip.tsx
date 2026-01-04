@@ -8,17 +8,42 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowRight, Plus, X } from "lucide-react";
+import { ArrowRight, Plus, X, MapPin, Building2 } from "lucide-react";
 import { WILAYAS } from "@/constants/cities";
+import { MUNICIPALITIES, SUPPORTED_WILAYAS } from "@/constants/municipalities";
+
+type TripType = "inter-wilaya" | "inter-municipality";
 
 const NewTrip = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [tripType, setTripType] = useState<TripType>("inter-wilaya");
+  const [selectedWilaya, setSelectedWilaya] = useState("");
   const [routeCities, setRouteCities] = useState<string[]>(["", ""]);
   const [routePrices, setRoutePrices] = useState<{ [key: string]: string }>({});
   const [seats, setSeats] = useState("");
   const [departureTime, setDepartureTime] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handleTripTypeChange = (type: TripType) => {
+    setTripType(type);
+    setRouteCities(["", ""]);
+    setRoutePrices({});
+    setSelectedWilaya("");
+  };
+
+  const handleWilayaChange = (wilaya: string) => {
+    setSelectedWilaya(wilaya);
+    setRouteCities(["", ""]);
+    setRoutePrices({});
+  };
+
+  const getAvailableLocations = () => {
+    if (tripType === "inter-wilaya") {
+      return WILAYAS;
+    }
+    return selectedWilaya ? MUNICIPALITIES[selectedWilaya] || [] : [];
+  };
 
   const addCity = () => {
     setRouteCities([...routeCities, ""]);
@@ -117,14 +142,61 @@ const NewTrip = () => {
         <Card className="max-w-2xl mx-auto shadow-medium">
           <CardHeader>
             <CardTitle className="text-3xl">إنشاء رحلة جديدة</CardTitle>
-            <CardDescription>أدخل تفاصيل الرحلة</CardDescription>
+            <CardDescription>اختر نوع الرحلة ثم أدخل تفاصيلها</CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Trip Type Selection */}
+            <div className="mb-6">
+              <Label className="mb-3 block">نوع الرحلة</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  type="button"
+                  variant={tripType === "inter-wilaya" ? "default" : "outline"}
+                  className="h-auto py-4 flex flex-col gap-2"
+                  onClick={() => handleTripTypeChange("inter-wilaya")}
+                >
+                  <MapPin className="h-6 w-6" />
+                  <span>بين الولايات</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant={tripType === "inter-municipality" ? "default" : "outline"}
+                  className="h-auto py-4 flex flex-col gap-2"
+                  onClick={() => handleTripTypeChange("inter-municipality")}
+                >
+                  <Building2 className="h-6 w-6" />
+                  <span>بين البلديات</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Wilaya Selection for Municipal Trips */}
+            {tripType === "inter-municipality" && (
+              <div className="mb-6 space-y-2">
+                <Label>اختر الولاية</Label>
+                <Select value={selectedWilaya} onValueChange={handleWilayaChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر الولاية" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUPPORTED_WILAYAS.map((wilaya) => (
+                      <SelectItem key={wilaya} value={wilaya}>
+                        {wilaya}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  متاح حالياً: غليزان ومستغانم فقط (نموذج تجريبي)
+                </p>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label>محطات الرحلة (بالترتيب)</Label>
-                  <Button type="button" onClick={addCity} variant="outline" size="sm">
+                  <Button type="button" onClick={addCity} variant="outline" size="sm" disabled={tripType === "inter-municipality" && !selectedWilaya}>
                     <Plus className="ml-2 h-4 w-4" />
                     إضافة محطة
                   </Button>
@@ -135,20 +207,23 @@ const NewTrip = () => {
                     <div className="flex gap-2 items-start">
                       <div className="flex-1 space-y-2">
                         <Label htmlFor={`city-${index}`}>
-                          {index === 0 ? "مدينة الانطلاق" : index === routeCities.length - 1 ? "مدينة الوصول" : `محطة ${index}`}
+                          {index === 0 ? (tripType === "inter-municipality" ? "بلدية الانطلاق" : "مدينة الانطلاق") : 
+                           index === routeCities.length - 1 ? (tripType === "inter-municipality" ? "بلدية الوصول" : "مدينة الوصول") : 
+                           `محطة ${index}`}
                         </Label>
                         <Select 
                           value={city} 
                           onValueChange={(value) => updateCity(index, value)}
                           required
+                          disabled={tripType === "inter-municipality" && !selectedWilaya}
                         >
                           <SelectTrigger id={`city-${index}`}>
-                            <SelectValue placeholder="اختر المدينة" />
+                            <SelectValue placeholder={tripType === "inter-municipality" ? "اختر البلدية" : "اختر المدينة"} />
                           </SelectTrigger>
                           <SelectContent>
-                            {WILAYAS.map((cityOption) => (
-                              <SelectItem key={cityOption} value={cityOption}>
-                                {cityOption}
+                            {getAvailableLocations().map((locationOption) => (
+                              <SelectItem key={locationOption} value={locationOption}>
+                                {locationOption}
                               </SelectItem>
                             ))}
                           </SelectContent>
