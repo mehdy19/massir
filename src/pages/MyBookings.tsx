@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { MapPin, Clock, Users, X, Navigation, Calendar, Palmtree, Car, MessageCircle } from "lucide-react";
+import ReportLostItemDialog from "@/components/ReportLostItemDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
@@ -248,6 +249,15 @@ const MyBookings = () => {
                               تواصل مع السائق عبر واتساب
                             </Button>
                           </>
+                        )}
+                        
+                        {expired && !isCancelled && (
+                          <ReportLostItemDialog
+                            bookingId={booking.id}
+                            tripId={booking.trips.id}
+                            driverId={booking.trips.driver_id}
+                            tripInfo={`رحلة ${booking.from_city} → ${booking.to_city}`}
+                          />
                         )}
                         
                         {!expired && !isCancelled && (

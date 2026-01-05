@@ -151,6 +151,45 @@ export type Database = {
           },
         ]
       }
+      lost_items: {
+        Row: {
+          booking_id: string
+          created_at: string
+          driver_id: string
+          driver_response: string | null
+          id: string
+          item_description: string
+          status: string
+          trip_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          driver_id: string
+          driver_response?: string | null
+          id?: string
+          item_description: string
+          status?: string
+          trip_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          driver_id?: string
+          driver_response?: string | null
+          id?: string
+          item_description?: string
+          status?: string
+          trip_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
