@@ -1,4 +1,4 @@
-import { Home, Calendar, User, Bell } from "lucide-react";
+import { Home, Calendar, User, Briefcase } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/lib/auth";
 import NotificationBell from "@/components/NotificationBell";
@@ -13,6 +13,7 @@ const BottomNav = () => {
 
   const driverLinks = [
     { to: "/driver", icon: Home, label: "الرئيسية" },
+    { to: "/driver/services", icon: Briefcase, label: "الخدمات" },
   ];
 
   const links = userRole === "driver" ? driverLinks : userLinks;

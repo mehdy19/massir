@@ -151,6 +151,39 @@ export type Database = {
           },
         ]
       }
+      consultation_requests: {
+        Row: {
+          created_at: string
+          description: string
+          driver_id: string
+          full_name: string
+          id: string
+          phone: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          driver_id: string
+          full_name: string
+          id?: string
+          phone: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          driver_id?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lost_items: {
         Row: {
           booking_id: string
