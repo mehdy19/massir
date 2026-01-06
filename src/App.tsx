@@ -15,6 +15,7 @@ import TrackTrip from "./pages/TrackTrip";
 import AdDetails from "./pages/AdDetails";
 import DriverAds from "./pages/DriverAds";
 import NewAd from "./pages/NewAd";
+import DriverServices from "./pages/DriverServices";
 import BottomNav from "./components/BottomNav";
 import EmergencyButton from "./components/EmergencyButton";
 import NotFound from "./pages/NotFound";
@@ -71,6 +72,7 @@ const AppRoutes = () => {
         <Route path="/driver/new-trip" element={<ProtectedRoute allowedRole="driver"><NewTrip /></ProtectedRoute>} />
         <Route path="/driver/ads" element={<ProtectedRoute allowedRole="driver"><DriverAds /></ProtectedRoute>} />
         <Route path="/driver/new-ad" element={<ProtectedRoute allowedRole="driver"><NewAd /></ProtectedRoute>} />
+        <Route path="/driver/services" element={<ProtectedRoute allowedRole="driver"><DriverServices /></ProtectedRoute>} />
         
         {/* Shared Routes */}
         <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
