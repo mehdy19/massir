@@ -32,9 +32,9 @@ const BottomNav = () => {
             <span className="text-xs font-semibold">{label}</span>
           </NavLink>
         ))}
-        <div className="flex flex-col items-center gap-1 py-2 px-3">
+        <div className="flex flex-col items-center gap-1 py-2 px-3 text-muted-foreground hover:text-primary transition-all rounded-lg hover:bg-primary/5 cursor-pointer">
           <NotificationBell />
-          <span className="text-xs font-semibold text-muted-foreground">الإشعارات</span>
+          <span className="text-xs font-semibold">الإشعارات</span>
         </div>
         <NavLink
           to="/account"
