@@ -16,6 +16,7 @@ import AdDetails from "./pages/AdDetails";
 import DriverAds from "./pages/DriverAds";
 import NewAd from "./pages/NewAd";
 import BottomNav from "./components/BottomNav";
+import EmergencyButton from "./components/EmergencyButton";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -77,6 +78,7 @@ const AppRoutes = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       {user && <BottomNav />}
+      {user && <EmergencyButton />}
     </>
   );
 };
