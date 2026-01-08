@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, LogOut, Camera, Loader2, Phone, Save, Pencil } from "lucide-react";
+import { User, Mail, LogOut, Camera, Loader2, Phone, Save, Pencil, Shield, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ const profileSchema = z.object({
 
 const Account = () => {
   const { user, userRole, signOut } = useAuth();
+  const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -286,6 +288,35 @@ const Account = () => {
                   {userRole === "driver" ? "سائق" : "مسافر"}
                 </p>
               </div>
+            </div>
+
+            {/* Legal Links */}
+            <div className="space-y-3">
+              <button
+                onClick={() => navigate("/privacy-policy")}
+                className="flex items-center gap-3 p-4 bg-secondary rounded-lg w-full hover:bg-secondary/80 transition-colors text-right"
+              >
+                <Shield className="h-5 w-5 text-primary" />
+                <div className="flex-1">
+                  <p className="font-semibold">سياسة الخصوصية</p>
+                  <p className="text-sm text-muted-foreground">
+                    كيف نحمي بياناتك الشخصية
+                  </p>
+                </div>
+              </button>
+
+              <button
+                onClick={() => navigate("/terms-conditions")}
+                className="flex items-center gap-3 p-4 bg-secondary rounded-lg w-full hover:bg-secondary/80 transition-colors text-right"
+              >
+                <FileText className="h-5 w-5 text-primary" />
+                <div className="flex-1">
+                  <p className="font-semibold">الشروط والأحكام</p>
+                  <p className="text-sm text-muted-foreground">
+                    {userRole === "driver" ? "شروط تقديم خدمات النقل" : "شروط استخدام الخدمة"}
+                  </p>
+                </div>
+              </button>
             </div>
 
             <Button

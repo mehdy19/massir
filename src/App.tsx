@@ -16,6 +16,8 @@ import AdDetails from "./pages/AdDetails";
 import DriverAds from "./pages/DriverAds";
 import NewAd from "./pages/NewAd";
 import DriverServices from "./pages/DriverServices";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
 import BottomNav from "./components/BottomNav";
 import EmergencyButton from "./components/EmergencyButton";
 import NotFound from "./pages/NotFound";
@@ -76,6 +78,8 @@ const AppRoutes = () => {
         
         {/* Shared Routes */}
         <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+        <Route path="/privacy-policy" element={<ProtectedRoute><PrivacyPolicy /></ProtectedRoute>} />
+        <Route path="/terms-conditions" element={<ProtectedRoute><TermsConditions /></ProtectedRoute>} />
         
         <Route path="*" element={<NotFound />} />
       </Routes>
