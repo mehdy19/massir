@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import massirLogo from "@/assets/massir-logo-text.png";
+import masarLogo from "@/assets/masar-logo.png";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -74,7 +74,7 @@ const Auth = () => {
       <Card className="w-full max-w-md shadow-medium">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <img src={massirLogo} alt="مسير" className="h-14" />
+            <img src={masarLogo} alt="مسار" className="h-14" />
           </div>
           <CardTitle className="text-2xl font-bold">
             {isLogin ? "مرحباً بك من جديد" : "إنشاء حساب جديد"}
