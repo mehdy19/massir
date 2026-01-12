@@ -22,6 +22,10 @@ import TermsConditions from "./pages/TermsConditions";
 import BottomNav from "./components/BottomNav";
 import EmergencyButton from "./components/EmergencyButton";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminTrips from "./pages/admin/AdminTrips";
+import AdminConsultations from "./pages/admin/AdminConsultations";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +86,14 @@ const AppRoutes = () => {
         <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
         <Route path="/privacy-policy" element={<ProtectedRoute><PrivacyPolicy /></ProtectedRoute>} />
         <Route path="/terms-conditions" element={<ProtectedRoute><TermsConditions /></ProtectedRoute>} />
+        
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/trips" element={<AdminTrips />} />
+        <Route path="/admin/bookings" element={<AdminTrips />} />
+        <Route path="/admin/ads" element={<AdminTrips />} />
+        <Route path="/admin/consultations" element={<AdminConsultations />} />
         
         <Route path="*" element={<NotFound />} />
       </Routes>
