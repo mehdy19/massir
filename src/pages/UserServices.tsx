@@ -36,7 +36,7 @@ const getStatusInfo = (status: string) => {
   }
 };
 
-const DriverServices = () => {
+const UserServices = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
@@ -56,7 +56,8 @@ const DriverServices = () => {
     const { data, error } = await supabase
       .from("consultation_requests")
       .select("*")
-      .eq("driver_id", user.id)
+      .eq("user_id", user.id)
+      .eq("request_type", "user")
       .order("created_at", { ascending: false });
 
     if (!error && data) {
@@ -86,11 +87,13 @@ const DriverServices = () => {
     setLoading(true);
     
     const { error } = await supabase.from("consultation_requests").insert({
-      driver_id: user.id,
+      user_id: user.id,
+      driver_id: user.id, // Required field - using user_id as placeholder
       full_name: formData.fullName.trim(),
       phone: formData.phone.trim(),
       description: formData.description.trim(),
-    });
+      request_type: "user",
+    } as any);
 
     setLoading(false);
 
@@ -225,7 +228,7 @@ const DriverServices = () => {
               <div className="flex-1">
                 <h3 className="font-semibold">طلب استشارة</h3>
                 <p className="text-sm text-muted-foreground">
-                  استشارة في مجال النقل والخدمات
+                  استشارة في مجال السفر والخدمات
                 </p>
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground rotate-180" />
@@ -275,4 +278,4 @@ const DriverServices = () => {
   );
 };
 
-export default DriverServices;
+export default UserServices;

@@ -16,6 +16,7 @@ import AdDetails from "./pages/AdDetails";
 import DriverAds from "./pages/DriverAds";
 import NewAd from "./pages/NewAd";
 import DriverServices from "./pages/DriverServices";
+import UserServices from "./pages/UserServices";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import BottomNav from "./components/BottomNav";
@@ -68,6 +69,7 @@ const AppRoutes = () => {
         <Route path="/bookings" element={<ProtectedRoute allowedRole="user"><MyBookings /></ProtectedRoute>} />
         <Route path="/track/:id" element={<ProtectedRoute allowedRole="user"><TrackTrip /></ProtectedRoute>} />
         <Route path="/ad/:id" element={<ProtectedRoute allowedRole="user"><AdDetails /></ProtectedRoute>} />
+        <Route path="/services" element={<ProtectedRoute allowedRole="user"><UserServices /></ProtectedRoute>} />
         
         {/* Driver Routes */}
         <Route path="/driver" element={<ProtectedRoute allowedRole="driver"><DriverDashboard /></ProtectedRoute>} />
