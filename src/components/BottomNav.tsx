@@ -9,11 +9,12 @@ const BottomNav = () => {
   const userLinks = [
     { to: "/", icon: Home, label: "الرئيسية" },
     { to: "/bookings", icon: Calendar, label: "حجوزاتي" },
+    { to: "/services", icon: Briefcase, label: "خدمات أخرى" },
   ];
 
   const driverLinks = [
     { to: "/driver", icon: Home, label: "الرئيسية" },
-    { to: "/driver/services", icon: Briefcase, label: "الخدمات" },
+    { to: "/driver/services", icon: Briefcase, label: "خدمات أخرى" },
   ];
 
   const links = userRole === "driver" ? driverLinks : userLinks;
