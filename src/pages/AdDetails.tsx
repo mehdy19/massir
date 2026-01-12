@@ -65,6 +65,11 @@ const AdDetails = () => {
   const handleBooking = async () => {
     if (!user || !ad) return;
 
+    if (seatsToBook <= 0) {
+      toast.error("عدد المقاعد يجب أن يكون أكبر من صفر");
+      return;
+    }
+
     if (seatsToBook > ad.available_seats) {
       toast.error("عدد المقاعد المطلوبة غير متاح");
       return;
@@ -72,25 +77,27 @@ const AdDetails = () => {
 
     setBooking(true);
     try {
-      const { error: bookingError } = await supabase.from("ad_bookings").insert({
-        ad_id: ad.id,
-        user_id: user.id,
-        seats_booked: seatsToBook,
-        status: "pending",
+      // Use atomic RPC function to prevent race condition
+      const { data, error } = await supabase.rpc('book_ad_atomically', {
+        ad_id_param: ad.id,
+        seats_param: seatsToBook,
+        user_id_param: user.id
       });
 
-      if (bookingError) throw bookingError;
+      if (error) throw error;
 
-      const { error: updateError } = await supabase
-        .from("ads")
-        .update({ available_seats: ad.available_seats - seatsToBook })
-        .eq("id", ad.id);
-
-      if (updateError) throw updateError;
+      const result = data?.[0];
+      if (!result?.success) {
+        toast.error(result?.message || "عدد المقاعد المطلوبة غير متاح");
+        // Refresh ad data to get current available seats
+        fetchAdDetails();
+        return;
+      }
 
       toast.success("تم إرسال طلب الحجز بنجاح!");
       navigate("/bookings");
     } catch (error: any) {
+      console.error("Booking error:", error);
       toast.error("حدث خطأ في الحجز");
     } finally {
       setBooking(false);

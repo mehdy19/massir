@@ -85,6 +85,11 @@ const TripDetails = () => {
       return;
     }
 
+    if (seatsCount <= 0) {
+      toast.error("عدد المقاعد يجب أن يكون أكبر من صفر");
+      return;
+    }
+
     if (seatsCount > trip.available_seats) {
       toast.error(`لا يتوفر سوى ${trip.available_seats} مقعد`);
       return;
@@ -92,20 +97,30 @@ const TripDetails = () => {
 
     setBooking(true);
     try {
-      const { error } = await supabase.from("bookings").insert({
-        trip_id: trip.id,
-        user_id: user.id,
-        seats_booked: seatsCount,
-        from_city: fromCity,
-        to_city: toCity,
-        price_paid: currentPrice ? currentPrice * seatsCount : null,
+      // Use atomic RPC function to prevent race condition
+      const { data, error } = await supabase.rpc('book_trip_atomically', {
+        trip_id_param: trip.id,
+        seats_param: seatsCount,
+        user_id_param: user.id,
+        from_city_param: fromCity,
+        to_city_param: toCity,
+        price_param: currentPrice ? currentPrice * seatsCount : 0
       });
 
       if (error) throw error;
 
+      const result = data?.[0];
+      if (!result?.success) {
+        toast.error(result?.message || "عدد المقاعد المطلوبة غير متاح");
+        // Refresh trip data to get current available seats
+        fetchTripDetails();
+        return;
+      }
+
       toast.success(`تم حجز ${seatsCount} مقعد بنجاح!`);
       navigate("/bookings");
     } catch (error: any) {
+      console.error("Booking error:", error);
       toast.error(error.message || "حدث خطأ في الحجز");
     } finally {
       setBooking(false);

@@ -356,7 +356,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      book_ad_atomically: {
+        Args: {
+          ad_id_param: string
+          seats_param: number
+          user_id_param: string
+        }
+        Returns: {
+          booking_id: string
+          message: string
+          success: boolean
+        }[]
+      }
+      book_trip_atomically: {
+        Args: {
+          from_city_param: string
+          price_param: number
+          seats_param: number
+          to_city_param: string
+          trip_id_param: string
+          user_id_param: string
+        }
+        Returns: {
+          booking_id: string
+          message: string
+          success: boolean
+        }[]
+      }
     }
     Enums: {
       app_role: "user" | "driver"
