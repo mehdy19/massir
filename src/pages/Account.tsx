@@ -4,12 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, LogOut, Camera, Loader2, Phone, Save, Pencil, Shield, FileText } from "lucide-react";
+import { User, Mail, LogOut, Camera, Loader2, Phone, Save, Pencil, Shield, FileText, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAdminRole } from "@/hooks/useAdminRole";
 
 const profileSchema = z.object({
   full_name: z.string().trim().min(2, "الاسم يجب أن يكون حرفين على الأقل").max(50, "الاسم طويل جداً"),
@@ -18,6 +19,7 @@ const profileSchema = z.object({
 
 const Account = () => {
   const { user, userRole, signOut } = useAuth();
+  const { isAdmin } = useAdminRole();
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -289,6 +291,22 @@ const Account = () => {
                 </p>
               </div>
             </div>
+
+            {/* Admin Link */}
+            {isAdmin && (
+              <button
+                onClick={() => navigate("/admin")}
+                className="flex items-center gap-3 p-4 bg-primary/10 border border-primary/20 rounded-lg w-full hover:bg-primary/20 transition-colors text-right"
+              >
+                <Settings className="h-5 w-5 text-primary" />
+                <div className="flex-1">
+                  <p className="font-semibold text-primary">لوحة تحكم الأدمين</p>
+                  <p className="text-sm text-muted-foreground">
+                    إدارة المستخدمين والرحلات
+                  </p>
+                </div>
+              </button>
+            )}
 
             {/* Legal Links */}
             <div className="space-y-3">
