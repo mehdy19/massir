@@ -6,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Search, Image } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Label } from "@/components/ui/label";
+import { ArrowRight, Search, Image, Pencil, Trash2, X } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -24,13 +26,49 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+type Ad = {
+  id: string;
+  title: string;
+  destination: string;
+  price: number;
+  seats: number;
+  available_seats: number;
+  departure_date: string;
+  status: string;
+  image_url: string;
+  description: string | null;
+  phone: string | null;
+};
 
 const AdminAds = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminRole();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [editingAd, setEditingAd] = useState<Ad | null>(null);
+  const [deletingAdId, setDeletingAdId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !adminLoading) {
@@ -53,7 +91,7 @@ const AdminAds = () => {
 
       const { data, error } = await query.order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      return data as Ad[];
     },
     enabled: isAdmin,
   });
@@ -77,6 +115,58 @@ const AdminAds = () => {
         return <Badge variant="destructive">ملغي</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingAd) return;
+    setSaving(true);
+    
+    try {
+      const { error } = await supabase
+        .from("ads")
+        .update({
+          title: editingAd.title,
+          destination: editingAd.destination,
+          price: editingAd.price,
+          seats: editingAd.seats,
+          available_seats: editingAd.available_seats,
+          status: editingAd.status,
+          description: editingAd.description,
+          phone: editingAd.phone,
+        })
+        .eq("id", editingAd.id);
+
+      if (error) throw error;
+
+      toast.success("تم تحديث الإعلان بنجاح");
+      setEditingAd(null);
+      queryClient.invalidateQueries({ queryKey: ["admin-ads"] });
+    } catch (error) {
+      console.error("Error updating ad:", error);
+      toast.error("فشل في تحديث الإعلان");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deletingAdId) return;
+    
+    try {
+      const { error } = await supabase
+        .from("ads")
+        .delete()
+        .eq("id", deletingAdId);
+
+      if (error) throw error;
+
+      toast.success("تم حذف الإعلان بنجاح");
+      setDeletingAdId(null);
+      queryClient.invalidateQueries({ queryKey: ["admin-ads"] });
+    } catch (error) {
+      console.error("Error deleting ad:", error);
+      toast.error("فشل في حذف الإعلان");
     }
   };
 
@@ -147,6 +237,7 @@ const AdminAds = () => {
                       <TableHead>المقاعد</TableHead>
                       <TableHead>التاريخ</TableHead>
                       <TableHead>الحالة</TableHead>
+                      <TableHead>إجراءات</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -175,6 +266,24 @@ const AdminAds = () => {
                           {new Date(ad.departure_date).toLocaleDateString("ar-SA")}
                         </TableCell>
                         <TableCell>{getStatusBadge(ad.status)}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => setEditingAd(ad)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => setDeletingAdId(ad.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -184,6 +293,102 @@ const AdminAds = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingAd} onOpenChange={(open) => !open && setEditingAd(null)}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>تعديل الإعلان</DialogTitle>
+            <DialogDescription>قم بتعديل بيانات الإعلان</DialogDescription>
+          </DialogHeader>
+          {editingAd && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>العنوان</Label>
+                <Input
+                  value={editingAd.title}
+                  onChange={(e) => setEditingAd({ ...editingAd, title: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>الوجهة</Label>
+                <Input
+                  value={editingAd.destination}
+                  onChange={(e) => setEditingAd({ ...editingAd, destination: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>السعر</Label>
+                  <Input
+                    type="number"
+                    value={editingAd.price}
+                    onChange={(e) => setEditingAd({ ...editingAd, price: Number(e.target.value) })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>المقاعد المتاحة</Label>
+                  <Input
+                    type="number"
+                    value={editingAd.available_seats}
+                    onChange={(e) => setEditingAd({ ...editingAd, available_seats: Number(e.target.value) })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>الحالة</Label>
+                <Select
+                  value={editingAd.status}
+                  onValueChange={(value) => setEditingAd({ ...editingAd, status: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">نشط</SelectItem>
+                    <SelectItem value="completed">مكتمل</SelectItem>
+                    <SelectItem value="cancelled">ملغي</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>رقم الهاتف</Label>
+                <Input
+                  value={editingAd.phone || ""}
+                  onChange={(e) => setEditingAd({ ...editingAd, phone: e.target.value })}
+                  dir="ltr"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setEditingAd(null)}>
+              إلغاء
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={saving}>
+              {saving ? "جاري الحفظ..." : "حفظ التغييرات"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deletingAdId} onOpenChange={(open) => !open && setDeletingAdId(null)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>هل أنت متأكد من حذف هذا الإعلان؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              لا يمكن التراجع عن هذا الإجراء. سيتم حذف الإعلان نهائياً.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              حذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
