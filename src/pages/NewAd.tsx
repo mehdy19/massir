@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
 import { ImageUpload } from "@/components/ImageUpload";
 
 const NewAd = () => {
@@ -52,12 +53,12 @@ const NewAd = () => {
         seats: Number(formData.seats),
         available_seats: Number(formData.seats),
         phone: formData.phone.trim(),
-        status: "active",
+        status: "pending",
       });
 
       if (error) throw error;
 
-      toast.success("تم إنشاء الإعلان بنجاح!");
+      toast.success("تم إرسال الإعلان للمراجعة! سيظهر بعد موافقة الإدارة.");
       navigate("/driver/ads");
     } catch (error: any) {
       console.error("Error creating ad:", error);
@@ -82,6 +83,13 @@ const NewAd = () => {
             <p className="text-muted-foreground">أضف رحلة سياحية جديدة</p>
           </div>
         </div>
+
+        <Alert className="mb-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20">
+          <Clock className="h-4 w-4 text-yellow-600" />
+          <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+            سيتم مراجعة إعلانك من قبل الإدارة قبل نشره. ستتلقى إشعاراً عند الموافقة.
+          </AlertDescription>
+        </Alert>
 
         <Card className="shadow-medium">
           <CardContent className="pt-6">
@@ -180,7 +188,7 @@ const NewAd = () => {
               </div>
 
               <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                {loading ? "جاري الإنشاء..." : "نشر الإعلان"}
+                {loading ? "جاري الإرسال..." : "إرسال للمراجعة"}
               </Button>
             </form>
           </CardContent>
