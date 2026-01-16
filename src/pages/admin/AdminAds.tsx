@@ -309,7 +309,7 @@ const AdminAds = () => {
                           {ad.available_seats}/{ad.seats}
                         </TableCell>
                         <TableCell>
-                          {new Date(ad.departure_date).toLocaleDateString("ar-SA")}
+                          {new Date(ad.departure_date).toLocaleDateString("ar-DZ")}
                         </TableCell>
                         <TableCell>{getStatusBadge(ad.status)}</TableCell>
                         <TableCell>

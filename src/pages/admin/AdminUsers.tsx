@@ -206,7 +206,7 @@ const AdminUsers = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {new Date(u.created_at).toLocaleDateString("ar-SA")}
+                          {new Date(u.created_at).toLocaleDateString("ar-DZ")}
                         </TableCell>
                         <TableCell>
                           <Button
