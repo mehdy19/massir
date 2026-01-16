@@ -170,7 +170,7 @@ const AdminConsultations = () => {
                         </TableCell>
                         <TableCell className="max-w-xs truncate">{c.description}</TableCell>
                         <TableCell>
-                          {new Date(c.created_at).toLocaleDateString("ar-SA")}
+                          {new Date(c.created_at).toLocaleDateString("ar-DZ")}
                         </TableCell>
                         <TableCell>{getStatusBadge(c.status)}</TableCell>
                         <TableCell>

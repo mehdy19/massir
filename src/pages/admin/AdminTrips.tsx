@@ -160,7 +160,7 @@ const AdminTrips = () => {
                           {trip.available_seats}/{trip.seats}
                         </TableCell>
                         <TableCell>
-                          {new Date(trip.departure_time).toLocaleDateString("ar-SA")}
+                          {new Date(trip.departure_time).toLocaleDateString("ar-DZ")}
                         </TableCell>
                         <TableCell>{getStatusBadge(trip.status)}</TableCell>
                       </TableRow>
