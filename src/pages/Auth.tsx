@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import masarLogo from "@/assets/masar-logo.png";
 
@@ -15,6 +16,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"user" | "driver">("user");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -45,6 +47,12 @@ const Auth = () => {
           }
         }
       } else {
+        if (!acceptedTerms) {
+          toast.error("يجب الموافقة على الشروط والأحكام وسياسة الخصوصية");
+          setLoading(false);
+          return;
+        }
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -147,14 +155,37 @@ const Auth = () => {
               </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            {!isLogin && (
+              <div className="flex items-start space-x-2 space-x-reverse">
+                <Checkbox
+                  id="terms"
+                  checked={acceptedTerms}
+                  onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                />
+                <Label htmlFor="terms" className="text-sm font-normal leading-relaxed cursor-pointer">
+                  أوافق على{" "}
+                  <Link to="/terms-conditions" target="_blank" className="text-primary hover:underline">
+                    الشروط والأحكام
+                  </Link>
+                  {" "}و{" "}
+                  <Link to="/privacy-policy" target="_blank" className="text-primary hover:underline">
+                    سياسة الخصوصية
+                  </Link>
+                </Label>
+              </div>
+            )}
+
+            <Button type="submit" className="w-full" disabled={loading || (!isLogin && !acceptedTerms)}>
               {loading ? "جاري التحميل..." : isLogin ? "تسجيل الدخول" : "إنشاء حساب"}
             </Button>
 
             <div className="text-center text-sm">
               <button
                 type="button"
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setAcceptedTerms(false);
+                }}
                 className="text-primary hover:underline"
               >
                 {isLogin ? "ليس لديك حساب؟ إنشاء حساب جديد" : "لديك حساب؟ تسجيل الدخول"}
