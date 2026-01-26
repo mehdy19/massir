@@ -19,6 +19,8 @@ import DriverServices from "./pages/DriverServices";
 import UserServices from "./pages/UserServices";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import BottomNav from "./components/BottomNav";
 import EmergencyButton from "./components/EmergencyButton";
 import NotFound from "./pages/NotFound";
@@ -68,6 +70,8 @@ const AppRoutes = () => {
     <>
       <Routes>
         <Route path="/auth" element={user ? <Navigate to={userRole === "driver" ? "/driver" : "/"} /> : <Auth />} />
+        <Route path="/forgot-password" element={user ? <Navigate to={userRole === "driver" ? "/driver" : "/"} /> : <ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         
         {/* User Routes */}
         <Route path="/" element={<ProtectedRoute allowedRole="user"><UserHome /></ProtectedRoute>} />

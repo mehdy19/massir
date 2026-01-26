@@ -179,6 +179,17 @@ const Auth = () => {
               {loading ? "جاري التحميل..." : isLogin ? "تسجيل الدخول" : "إنشاء حساب"}
             </Button>
 
+            {isLogin && (
+              <div className="text-center">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-muted-foreground hover:text-primary hover:underline"
+                >
+                  نسيت كلمة المرور؟
+                </Link>
+              </div>
+            )}
+
             <div className="text-center text-sm">
               <button
                 type="button"
