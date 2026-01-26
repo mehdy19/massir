@@ -193,7 +193,7 @@ const AdDetails = () => {
                 <p className="text-sm text-muted-foreground">السائق</p>
                 <p className="font-semibold">{ad.profiles?.full_name || "غير معروف"}</p>
               </div>
-              {ad.phone && (
+              {user && ad.phone && (
                 <a
                   href={`tel:${ad.phone}`}
                   className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg"

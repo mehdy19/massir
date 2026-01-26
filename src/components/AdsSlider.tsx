@@ -26,16 +26,16 @@ const AdsSlider = () => {
 
   const fetchAds = async () => {
     try {
+      // Use ads_public view for public display (excludes phone numbers)
       const { data, error } = await supabase
-        .from("ads")
+        .from("ads_public" as any)
         .select("*")
-        .eq("status", "active")
         .gt("available_seats", 0)
         .gt("departure_date", new Date().toISOString())
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setAds(data || []);
+      setAds((data as unknown as Ad[]) || []);
     } catch (error) {
       console.error("Error fetching ads:", error);
     } finally {

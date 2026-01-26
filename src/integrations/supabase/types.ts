@@ -47,6 +47,13 @@ export type Database = {
             referencedRelation: "ads"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ad_bookings_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ads: {
@@ -374,7 +381,54 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      ads_public: {
+        Row: {
+          available_seats: number | null
+          created_at: string | null
+          departure_date: string | null
+          description: string | null
+          destination: string | null
+          driver_id: string | null
+          id: string | null
+          image_url: string | null
+          price: number | null
+          seats: number | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          available_seats?: number | null
+          created_at?: string | null
+          departure_date?: string | null
+          description?: string | null
+          destination?: string | null
+          driver_id?: string | null
+          id?: string | null
+          image_url?: string | null
+          price?: number | null
+          seats?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          available_seats?: number | null
+          created_at?: string | null
+          departure_date?: string | null
+          description?: string | null
+          destination?: string | null
+          driver_id?: string | null
+          id?: string | null
+          image_url?: string | null
+          price?: number | null
+          seats?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       book_ad_atomically: {
