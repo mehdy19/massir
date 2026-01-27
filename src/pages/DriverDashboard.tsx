@@ -239,7 +239,7 @@ const DriverDashboard = () => {
                   <div className="pt-2 space-y-2">
                     <ShareLocationButton 
                       tripId={trip.id} 
-                      isActive={(trip.status === "active" || trip.status === "started") && !isExpired(trip.departure_time)}
+                      isActive={trip.status === "active" || trip.status === "started"}
                     />
                     
                     {/* أزرار التحكم في حالة الرحلة */}
