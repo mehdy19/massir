@@ -8,6 +8,7 @@ import { Search, Clock, Users, Building2, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import AdsSlider from "@/components/AdsSlider";
+import FeaturesShowcase from "@/components/FeaturesShowcase";
 import { WILAYAS } from "@/constants/cities";
 import { MUNICIPALITIES, SUPPORTED_WILAYAS } from "@/constants/municipalities";
 
@@ -104,6 +105,11 @@ const UserHome = () => {
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold text-foreground mb-2">ابحث عن رحلتك</h1>
           <p className="text-muted-foreground">اختر وجهتك واحجز مقعدك بسهولة</p>
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold mb-3 text-foreground">مميزات التطبيق</h2>
+          <FeaturesShowcase />
         </div>
 
         <div className="mb-8">
