@@ -396,6 +396,15 @@ const MyBookings = () => {
                           </Button>
                         )}
                         
+                        {expired && !isCancelled && (
+                          <ReportLostItemDialog
+                            bookingId={booking.id}
+                            tripId={booking.ads.id}
+                            driverId={booking.ads.driver_id}
+                            tripInfo={`رحلة "${booking.ads.title}" إلى ${booking.ads.destination}`}
+                          />
+                        )}
+                        
                         {!expired && !isCancelled && (
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
