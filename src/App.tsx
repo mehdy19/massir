@@ -17,6 +17,7 @@ import DriverAds from "./pages/DriverAds";
 import NewAd from "./pages/NewAd";
 import DriverServices from "./pages/DriverServices";
 import UserServices from "./pages/UserServices";
+import LostItems from "./pages/LostItems";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -80,6 +81,7 @@ const AppRoutes = () => {
         <Route path="/track/:id" element={<ProtectedRoute allowedRole="user"><TrackTrip /></ProtectedRoute>} />
         <Route path="/ad/:id" element={<ProtectedRoute allowedRole="user"><AdDetails /></ProtectedRoute>} />
         <Route path="/services" element={<ProtectedRoute allowedRole="user"><UserServices /></ProtectedRoute>} />
+        <Route path="/lost-items" element={<ProtectedRoute allowedRole="user"><LostItems /></ProtectedRoute>} />
         
         {/* Driver Routes */}
         <Route path="/driver" element={<ProtectedRoute allowedRole="driver"><DriverDashboard /></ProtectedRoute>} />
