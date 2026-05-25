@@ -15,14 +15,14 @@ const features: Feature[] = [
     title: "حجز الرحلات",
     description: "احجز مقعدك بسهولة وأمان",
     color: "bg-primary/10 text-primary",
-    href: "/",
+    href: "#booking-section",
   },
   {
     icon: Route,
     title: "رحلات متنوعة",
     description: "داخلية، بين الولايات، وسياحية",
     color: "bg-accent/10 text-accent",
-    href: "/",
+    href: "#booking-section",
   },
   {
     icon: Navigation,
@@ -56,13 +56,26 @@ const features: Feature[] = [
 
 const FeaturesShowcase = () => {
   const navigate = useNavigate();
+
+  const handleClick = (href?: string) => {
+    if (!href) return;
+    if (href.startsWith("#")) {
+      const el = document.getElementById(href.slice(1));
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+    }
+    navigate(href);
+  };
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
       {features.map((feature, index) => (
         <button
           key={index}
           type="button"
-          onClick={() => feature.href && navigate(feature.href)}
+          onClick={() => handleClick(feature.href)}
           className="text-right bg-card rounded-xl p-4 shadow-soft hover:shadow-medium transition-all duration-300 border border-border/50"
         >
           <div className={`w-10 h-10 rounded-lg ${feature.color} flex items-center justify-center mb-3`}>
