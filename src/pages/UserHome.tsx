@@ -117,7 +117,7 @@ const UserHome = () => {
           <AdsSlider />
         </div>
 
-        <Card className="mb-8 shadow-medium">
+        <Card id="booking-section" className="mb-8 shadow-medium scroll-mt-4">
           <CardContent className="pt-6">
             <form onSubmit={handleSearch} className="space-y-4">
               {/* Trip Type Selection */}
