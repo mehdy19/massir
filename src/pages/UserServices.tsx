@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Send, CheckCircle, ArrowRight, Clock, CheckCheck, XCircle } from "lucide-react";
+import { MessageSquare, Send, CheckCircle, ArrowRight, Clock, CheckCheck, XCircle, Package } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 
@@ -39,6 +40,7 @@ const getStatusInfo = (status: string) => {
 const UserServices = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -229,6 +231,24 @@ const UserServices = () => {
                 <h3 className="font-semibold">طلب استشارة</h3>
                 <p className="text-sm text-muted-foreground">
                   استشارة في مجال السفر والخدمات
+                </p>
+              </div>
+              <ArrowRight className="h-5 w-5 text-muted-foreground rotate-180" />
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="cursor-pointer hover:border-primary transition-colors"
+            onClick={() => navigate("/lost-items")}
+          >
+            <CardContent className="flex items-center gap-4 p-4">
+              <div className="p-3 rounded-full bg-orange-500/10">
+                <Package className="h-6 w-6 text-orange-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold">الإبلاغ عن أمتعة مفقودة</h3>
+                <p className="text-sm text-muted-foreground">
+                  بلّغ عن أمتعتك المفقودة في أي رحلة
                 </p>
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground rotate-180" />
