@@ -50,6 +50,7 @@ const features: Feature[] = [
     title: "تغطية واسعة",
     description: "جميع ولايات وبلديات الجزائر",
     color: "bg-rose-500/10 text-rose-600",
+    href: "/",
   },
 ];
 
