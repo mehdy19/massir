@@ -39,13 +39,13 @@ const LostItems = () => {
       const [tripsRes, adsRes, reportsRes] = await Promise.all([
         supabase
           .from("bookings")
-          .select(`*, trips (*, profiles:driver_id (full_name))`)
+          .select("*")
           .eq("user_id", user.id)
           .neq("status", "cancelled")
           .order("created_at", { ascending: false }),
         supabase
           .from("ad_bookings")
-          .select(`*, ads (*, profiles:driver_id (full_name))`)
+          .select("*")
           .eq("user_id", user.id)
           .neq("status", "cancelled")
           .order("created_at", { ascending: false }),
@@ -58,8 +58,34 @@ const LostItems = () => {
       if (tripsRes.error) throw tripsRes.error;
       if (adsRes.error) throw adsRes.error;
       if (reportsRes.error) throw reportsRes.error;
-      setTripBookings(tripsRes.data || []);
-      setAdBookings(adsRes.data || []);
+
+      const tripIds = [...new Set((tripsRes.data || []).map((b: any) => b.trip_id))];
+      const adIds = [...new Set((adsRes.data || []).map((b: any) => b.ad_id))];
+
+      const [tripsData, adsData] = await Promise.all([
+        tripIds.length
+          ? supabase.from("trips").select("id, driver_id, from_city, to_city, departure_time").in("id", tripIds)
+          : Promise.resolve({ data: [] as any[] }),
+        adIds.length
+          ? supabase.from("ads").select("id, driver_id, title, destination, departure_date").in("id", adIds)
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
+
+      const driverIds = [
+        ...new Set([
+          ...((tripsData.data || []).map((t: any) => t.driver_id)),
+          ...((adsData.data || []).map((a: any) => a.driver_id)),
+        ]),
+      ];
+      const profilesRes = driverIds.length
+        ? await supabase.from("profiles").select("id, full_name").in("id", driverIds)
+        : { data: [] as any[] };
+      const profilesMap = new Map((profilesRes.data || []).map((p: any) => [p.id, p]));
+      const tripsMap = new Map((tripsData.data || []).map((t: any) => [t.id, { ...t, profiles: profilesMap.get(t.driver_id) }]));
+      const adsMap = new Map((adsData.data || []).map((a: any) => [a.id, { ...a, profiles: profilesMap.get(a.driver_id) }]));
+
+      setTripBookings((tripsRes.data || []).map((b: any) => ({ ...b, trips: tripsMap.get(b.trip_id) })).filter((b: any) => b.trips));
+      setAdBookings((adsRes.data || []).map((b: any) => ({ ...b, ads: adsMap.get(b.ad_id) })).filter((b: any) => b.ads));
       setReports(reportsRes.data || []);
     } catch (e) {
       toast.error("حدث خطأ في جلب البيانات");
