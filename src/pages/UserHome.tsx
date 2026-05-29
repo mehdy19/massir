@@ -112,7 +112,7 @@ const UserHome = () => {
           <FeaturesShowcase />
         </div>
 
-        <div className="mb-8">
+        <div id="tourism-section" className="mb-8 scroll-mt-4">
           <h2 className="text-lg font-semibold mb-3 text-foreground">رحلات سياحية مميزة</h2>
           <AdsSlider />
         </div>

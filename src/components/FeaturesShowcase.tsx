@@ -1,4 +1,4 @@
-import { MapPin, Bus, Navigation, Package, MessageCircle, Route } from "lucide-react";
+import { Bus, Package, MessageCircle, Route } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface Feature {
@@ -22,14 +22,7 @@ const features: Feature[] = [
     title: "رحلات متنوعة",
     description: "داخلية، بين الولايات، وسياحية",
     color: "bg-accent/10 text-accent",
-    href: "#booking-section",
-  },
-  {
-    icon: Navigation,
-    title: "تتبع مباشر",
-    description: "تابع موقع الحافلة لحظة بلحظة",
-    color: "bg-emerald-500/10 text-emerald-600",
-    href: "/bookings",
+    href: "#tourism-section",
   },
   {
     icon: Package,
@@ -44,13 +37,6 @@ const features: Feature[] = [
     description: "خدمة استشارية في مجال النقل",
     color: "bg-blue-500/10 text-blue-600",
     href: "/services",
-  },
-  {
-    icon: MapPin,
-    title: "تغطية واسعة",
-    description: "جميع ولايات وبلديات الجزائر",
-    color: "bg-rose-500/10 text-rose-600",
-    href: "/",
   },
 ];
 
