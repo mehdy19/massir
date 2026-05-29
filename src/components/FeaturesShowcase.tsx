@@ -1,4 +1,4 @@
-import { MapPin, Bus, Navigation, Package, MessageCircle, Route } from "lucide-react";
+import { Bus, Package, MessageCircle, Route } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface Feature {
